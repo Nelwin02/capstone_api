@@ -6,27 +6,44 @@
   <title>Weather Forecast</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css" integrity="sha512-8l2CN04mDNYA1UqSNB5YCVd56L4ax20h0YBVC5LfhDt9Jaw3WYhCz+O2t2NFWbdnXnpXtvX7VU+QdxkW9qdkrA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-lmKkKhuBnDZZDoOb9zJ+gFL5/6kjoX+Pf7uYIYLPD+mvfnoaSw2iA5Ob20UX3R7ELnE7+/6jZGUGDRnJ5pVU1Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
- 
-</head>
-<style>
-
-body {
+  <style>
+    body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      overflow: hidden; /* Prevents scrolling of video content */
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 100vh; /* Full viewport height */
+      background-color: #f0f0f0; /* Fallback background color */
+    }
+
+    .video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1; /* Place behind other content */
+    }
+
+    video {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      filter: brightness(70%); /* Adjust brightness as needed */
     }
 
     .weather-card {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       padding: 20px;
       width: 80%;
       max-width: 400px;
+      position: relative;
+      z-index: 1; /* Place above video background */
     }
 
     .weather-header {
@@ -116,16 +133,41 @@ body {
     .temperature, .humidity, .wind-speed {
       font-size: 14px;
       margin-right: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .temperature {
+      color: #ff6347; /* Tomato red */
+    }
+
+    .humidity {
+      color: #4169e1; /* Royal blue */
+    }
+
+    .wind-speed {
+      color: #2e8b57; /* Sea green */
     }
 
     .error-message {
       color: red;
       margin-top: 10px;
     }
-</style>
+  </style>
+</head>
 <body>
+  <div class="video-container">
+    <video autoplay muted loop>
+      <source src="weather1.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
   <div class="weather-card">
     <div class="weather-header">
+      <img style="width: 20%;" src="weather.jpg" alt="Weather Forecast Logo" class="logo">
       <h1>Weather Forecast</h1>
     </div>
     <div class="weather-body">
@@ -183,7 +225,9 @@ body {
               <div class="hourly-item">
                 <div class="hourly-time">${time}</div>
                 <div class="hourly-info">
-                  <i class="fas fa-sun weather-icon"></i> <!-- Replace with appropriate Font Awesome class -->
+                  ${getWeatherIcon(hourlyHumidity[index], 'humidity')}
+                  ${getWeatherIcon(hourlyTemperature[index], 'temperature')}
+                  ${getWeatherIcon(hourlyWindSpeed[index], 'wind')}
                   <div class="temperature">${hourlyTemperature[index]} °C</div>
                   <div class="humidity">Humidity: ${hourlyHumidity[index]} %</div>
                   <div class="wind-speed">Wind: ${hourlyWindSpeed[index]} m/s</div>
@@ -204,12 +248,43 @@ body {
     // Function to determine weather icon class based on temperature
     function getWeatherIconClass(temperature) {
       if (temperature > 20) {
-        return 'wi wi-day-sunny';
+        return 'fas fa-sun'; // Font Awesome icon for sunny weather
       } else if (temperature > 10) {
-        return 'wi wi-day-cloudy';
+        return 'fas fa-cloud-sun'; // Font Awesome icon for partly cloudy weather
       } else {
-        return 'wi wi-cloud';
+        return 'fas fa-cloud'; // Font Awesome icon for cloudy weather
       }
+    }
+
+    // Function to get appropriate Font Awesome icon based on data type
+    function getWeatherIcon(data, type) {
+      let iconClass = '';
+      switch (type) {
+        case 'humidity':
+          if (data > 70) {
+            iconClass = 'fas fa-tint'; // Font Awesome icon for high humidity
+          } else {
+            iconClass = 'fas fa-cloud-rain'; // Font Awesome icon for moderate humidity
+          }
+          break;
+        case 'temperature':
+          if (data > 20) {
+            iconClass = 'fas fa-thermometer-full'; // Font Awesome icon for high temperature
+          } else {
+            iconClass = 'fas fa-thermometer-half'; // Font Awesome icon for moderate temperature
+          }
+          break;
+        case 'wind':
+          if (data > 5) {
+            iconClass = 'fas fa-wind'; // Font Awesome icon for high wind speed
+          } else {
+            iconClass = 'fas fa-wind'; // Font Awesome icon for moderate wind speed
+          }
+          break;
+        default:
+          iconClass = 'fas fa-question-circle'; // Default Font Awesome icon for unknown data
+      }
+      return `<i class="${iconClass} weather-icon"></i>`;
     }
 
     // Function to handle search
