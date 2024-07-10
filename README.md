@@ -24,3 +24,6 @@ This web page displays current weather information and hourly forecasts based on
 
 - Ensure an internet connection for accurate weather updates.
 - This project is for demonstration purposes and may require adjustments for production use.
+
+## Credits
+- We would like to credits the owner of the logo "weather.jpg".
